@@ -1,0 +1,65 @@
+<html>
+  <body>
+    <h1>WebMemcache</h1>
+    <h2>About</h2>
+    <p>WebMemcache is web frontend of google memcache. Anyone can use from anywhere.</p>
+
+    <h2>Usage</h2>
+    <p>WebMemcache has not RESTful APIs.</p>
+
+    <h3>Get</h3>
+<pre>
+jQuery.ajax({
+   url: 'http://webmemcache.appspot.com/get',
+   type: 'GET',
+   dataType: 'json',
+   data: {'key': ['foo','bar'], namespace: 'test'},
+   success: function(json){
+     console.log(json)
+   }
+ });
+</pre>
+
+<h3>Set</h3>
+<pre>
+jQuery.ajax({
+   url: 'http://webmemcache.appspot.com/set',
+   type: 'POST',
+   dataType: 'json',
+   data: {'foo': 'foooo', 'bar': 'barrrrrr', namespace: 'test'},
+   success: function(json){
+     console.log(json)
+   }
+ });
+</pre>
+
+<h3>Delete</h3>
+<pre>
+jQuery.ajax({
+   url: 'http://webmemcache.appspot.com/delete',
+   type: 'POST',
+   dataType: 'json',
+   data: {'key': ['foo', 'bar'], namespace: 'test'},
+   success: function(json){
+     console.log(json)
+   }
+ });
+</pre>
+
+<h3>Stats</h3>
+<pre>
+jQuery.ajax({
+   url: 'http://webmemcache.appspot.com/stats',
+   type: 'GET',
+   dataType: 'json',
+   success: function(json){
+     console.log(json)
+   }
+ });
+</pre>
+
+<h2>Author</h2>
+<a href="http://twitter.com/hitode909">hitode909</a>
+
+  </body>
+</html>

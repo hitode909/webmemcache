@@ -1,0 +1,13 @@
+application: webmemcache
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+
+- url: /
+  static_files: static/index.html
+  upload: static/index.html
+
+- url: .*
+  script: main.py
