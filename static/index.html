@@ -7,56 +7,60 @@
     <h2>Usage</h2>
     <p>WebMemcache has not RESTful APIs.</p>
 
-    <h3>Get</h3>
-<pre>
-jQuery.ajax({
-   url: 'http://webmemcache.appspot.com/get',
-   type: 'GET',
-   dataType: 'json',
-   data: {'key': ['foo','bar'], namespace: 'test'},
-   success: function(json){
-     console.log(json)
-   }
- });
-</pre>
-
 <h3>Set</h3>
-<pre>
+<pre><code>
 jQuery.ajax({
-   url: 'http://webmemcache.appspot.com/set',
+   url: '/set',
    type: 'POST',
    dataType: 'json',
    data: {'foo': 'foooo', 'bar': 'barrrrrr', namespace: 'test'},
    success: function(json){
-     console.log(json)
+     console.log(json);
    }
  });
-</pre>
+</code></pre>
+<p>returns <var>({namespace:"test", data:{foo:"foooo", bar:"barrrrrr"}})</var></p>
+
+<h3>Get</h3>
+<pre><code>
+jQuery.ajax({
+   url: '/get',
+   type: 'GET',
+   dataType: 'json',
+   data: {'key': ['foo','bar'], namespace: 'test'},
+   success: function(json){
+     console.log(json);
+   }
+ });
+</code></pre>
+<p>returns <var>({namespace:"test", data:{foo:"foooo", bar:"barrrrrr"}})</var></p>
 
 <h3>Delete</h3>
-<pre>
+<pre><code>
 jQuery.ajax({
-   url: 'http://webmemcache.appspot.com/delete',
+   url: '/delete',
    type: 'POST',
    dataType: 'json',
    data: {'key': ['foo', 'bar'], namespace: 'test'},
    success: function(json){
-     console.log(json)
+     console.log(json);
    }
  });
-</pre>
+</code></pre>
+<p>returns <var>({namespace:"test", data:{foo:null, bar:null}})</var></p>
 
 <h3>Stats</h3>
-<pre>
+<pre><code>
 jQuery.ajax({
-   url: 'http://webmemcache.appspot.com/stats',
+   url: '/stats',
    type: 'GET',
    dataType: 'json',
    success: function(json){
-     console.log(json)
+     console.log(json);
    }
  });
-</pre>
+</code></pre>
+<p>returns <var>({hits:3, items:2, bytes:19, oldest_item_age:648, misses:1, byte_hits:27})</var><p>
 
 <h2>Author</h2>
 <a href="http://twitter.com/hitode909">hitode909</a>
