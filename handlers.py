@@ -25,7 +25,7 @@ class GetHandler(Helper):
             data[key] = memcache.get(key, namespace)
 
         result = simplejson.dumps(
-            data,
+            { 'data': data, 'namespace': namespace},
             ensure_ascii=False
             )
 
@@ -73,7 +73,7 @@ class SetHandler(Helper):
             memcache.set(key, data[key], expire, 0, namespace)
 
         result = simplejson.dumps(
-            data,
+            { 'data': data, 'namespace': namespace},
             ensure_ascii=False
             )
 
@@ -83,6 +83,7 @@ class SetHandler(Helper):
 
 class DeleteHandler(Helper):
     def post(self):
+        data = { }
         namespace = self.request.get('namespace')
         if not namespace: namespace = self.default_namespace()
         logging.info("namespace: (%s)", namespace)
@@ -92,9 +93,15 @@ class DeleteHandler(Helper):
         for key in keys:
             logging.info("delete key: (%s)", key)
             memcache.delete(key, 0, namespace)
-        
+            data[key] = None
+
+        result = simplejson.dumps(
+            { 'data': data, 'namespace': namespace},
+            ensure_ascii=False
+            )
+
         self.response.headers['Content-Type'] = "application/json"
-        self.response.out.write({ })
+        self.response.out.write(result)
         return
 
 class StatsHandler(Helper):
