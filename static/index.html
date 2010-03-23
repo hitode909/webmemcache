@@ -13,7 +13,7 @@ jQuery.ajax({
    url: '/set',
    type: 'POST',
    dataType: 'json',
-   data: {'foo': 'foooo', 'bar': 'barrrrrr', namespace: 'test'},
+   data: {'foo': 'foooo', 'bar': 'barrrrrr', namespace: 'test', expire: 3600},
    success: function(json){
      console.log(json);
    }
