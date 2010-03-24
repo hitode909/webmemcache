@@ -51,6 +51,21 @@ jQuery.ajax({
 </code></pre></div>
 <p>returns <var>({namespace:"test", data:{foo:"foooo", bar:"barrrrrr"}})</var></p>
 
+<h3>Get Raw</h3>
+<div class="can-exec"><pre><code>
+jQuery.ajax({
+   url: '/raw',
+   type: 'GET',
+   dataType: 'text',
+   data: {'key': 'foo', namespace: 'test', content_type: 'text/plain'},
+   success: function(text){
+     log(text);
+   }
+ });
+</code></pre></div>
+<p>returns <var>"foooo"</var></p>
+<p>You can set any Content-Type.</p>
+
 <h3>Delete</h3>
 <div class="can-exec"><pre><code>
 jQuery.ajax({
