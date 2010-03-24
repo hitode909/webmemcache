@@ -164,3 +164,92 @@ class StatsHandler(Helper):
         self.response.headers['Content-Type'] = content_type
         self.response.out.write(result)
         return
+
+class IncrHandler(Helper):
+    def post(self):
+        data = {}
+        namespace = self.request.get('namespace')
+        callback = self.request.get('callback')
+        delta = self.request.get('delta')
+
+        if delta:
+            try:
+                delta = int(delta)
+                if delta < 0:
+                    self.error(400)
+                    self.response.out.write('delta must > 0')
+                    return
+            except ValueError, message:
+                self.error(400)
+                self.response.out.write('delta must be int')
+                return
+        else:
+            delta = 1
+
+        logging.info("namespace: (%s)", namespace)
+        logging.info("delta: %d", delta)
+
+        keys = self.request.get_all('key')
+        keys.extend(self.request.get_all('key[]'))
+        for key in keys:
+            logging.info("incr key: %s", key)
+            data[key] = memcache.incr(key, delta, namespace)
+
+        result = simplejson.dumps(
+            { 'data': data, 'namespace': namespace},
+            ensure_ascii=False
+            )
+
+        content_type = 'application/json'
+        if callback:
+            result = callback + '(' + result + ');'
+            content_type = 'text/javascript'
+
+        self.response.headers['Content-Type'] = content_type
+        self.response.out.write(result)
+        return
+
+class DecrHandler(Helper):
+    def post(self):
+        data = {}
+        namespace = self.request.get('namespace')
+        callback = self.request.get('callback')
+        delta = self.request.get('delta')
+
+        if delta:
+            try:
+                delta = int(delta)
+                if delta < 0:
+                    self.error(400)
+                    self.response.out.write('delta must > 0')
+                    return
+            except ValueError, message:
+                self.error(400)
+                self.response.out.write('delta must be int')
+                return
+        else:
+            delta = 1
+
+        logging.info("namespace: (%s)", namespace)
+        logging.info("delta: %d", delta)
+
+        keys = self.request.get_all('key')
+        keys.extend(self.request.get_all('key[]'))
+        for key in keys:
+            logging.info("decr key: %s", key)
+            data[key] = memcache.decr(key, delta, namespace)
+
+        result = simplejson.dumps(
+            { 'data': data, 'namespace': namespace},
+            ensure_ascii=False
+            )
+
+        content_type = 'application/json'
+        if callback:
+            result = callback + '(' + result + ');'
+            content_type = 'text/javascript'
+
+        self.response.headers['Content-Type'] = content_type
+        self.response.out.write(result)
+        return
+
