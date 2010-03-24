@@ -20,6 +20,9 @@ class Helper(webapp.RequestHandler):
         self.error(400)
         self.response.out.write('callback is required.')
         return
+
+    def default_content_type(self):
+        return 'text/plain'
     
 class GetHandler(Helper):
     def get(self):
@@ -252,3 +255,21 @@ class DecrHandler(Helper):
         self.response.out.write(result)
         return
 
+class RawHandler(Helper):
+    def get(self):
+        namespace = self.request.get('namespace')
+        if not namespace: namespace = self.default_namespace()
+        logging.info("namespace: (%s)", namespace)
+        callback = self.request.get('callback')
+
+        key = self.request.get('key')
+        logging.info("get key: %s", key)
+        result = memcache.get(key, namespace)
+
+        content_type = self.request.get('content_type')
+        if not content_type: content_type = self.default_content_type()
+        logging.info("content_type: %s", content_type)
+
+        self.response.headers['Content-Type'] = content_type
+        self.response.out.write(result)
+        return
