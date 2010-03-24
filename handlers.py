@@ -51,7 +51,6 @@ class GetHandler(Helper):
 
 class SetHandler(Helper):
     def post(self):
-        logging.debug('post')
         data = {}
         keys = self.request.arguments()
         if keys.count('expire') > 0: keys.remove('expire')
