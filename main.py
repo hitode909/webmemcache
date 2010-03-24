@@ -8,6 +8,8 @@ def main():
       (r'/set', SetHandler),
       (r'/get', GetHandler),
       (r'/delete', DeleteHandler),
+      (r'/incr', IncrHandler),
+      (r'/decr', DecrHandler),
       ],
     debug=True)
 
