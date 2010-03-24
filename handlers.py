@@ -11,12 +11,23 @@ class Helper(webapp.RequestHandler):
     def default_namespace(self):
         return 'default'
 
+    def get(self):
+        keys = self.request.arguments()
+        if keys.count('callback') > 0:
+            self.post()
+            return
+
+        self.error(400)
+        self.response.out.write('callback is required.')
+        return
+    
 class GetHandler(Helper):
     def get(self):
         data = { }
         namespace = self.request.get('namespace')
         if not namespace: namespace = self.default_namespace()
         logging.info("namespace: (%s)", namespace)
+        callback = self.request.get('callback')
 
         keys = self.request.get_all('key')
         keys.extend(self.request.get_all('key[]'))
@@ -29,17 +40,25 @@ class GetHandler(Helper):
             ensure_ascii=False
             )
 
-        self.response.headers['Content-Type'] = "application/json"
+        content_type = 'application/json'
+        if callback:
+            result = callback + '(' + result + ');'
+            content_type = 'text/javascript'
+
+        self.response.headers['Content-Type'] = content_type
         self.response.out.write(result)
         return
 
 class SetHandler(Helper):
     def post(self):
+        logging.debug('post')
         data = {}
         keys = self.request.arguments()
         if keys.count('expire') > 0: keys.remove('expire')
         if keys.count('namespace') > 0: keys.remove('namespace')
-        for key in keys: data[key] = self.request.get(key)
+        if keys.count('callback') > 0: keys.remove('callback')
+        for key in keys:
+            data[key] = self.request.get(key)
 
         if len(data) == 0:
             self.error(400)
@@ -49,6 +68,7 @@ class SetHandler(Helper):
         expire = self.request.get('expire')
         namespace = self.request.get('namespace')
         logging.info("namespace: (%s)", namespace)
+        callback = self.request.get('callback')
 
         if not namespace: namespace = self.default_namespace()
         if expire:
@@ -77,8 +97,23 @@ class SetHandler(Helper):
             ensure_ascii=False
             )
 
-        self.response.headers['Content-Type'] = "application/json"
+        content_type = 'application/json'
+        if callback:
+            result = callback + '(' + result + ');'
+            content_type = 'text/javascript'
+
+        self.response.headers['Content-Type'] = content_type
         self.response.out.write(result)
+        return
+
+    def get(self):
+        keys = self.request.arguments()
+        if keys.count('callback') > 0:
+            self.post()
+            return
+        
+        self.error(400)
+        self.response.out.write('data is required(example: ?foo=bar')
         return
 
 class DeleteHandler(Helper):
@@ -100,7 +135,13 @@ class DeleteHandler(Helper):
             ensure_ascii=False
             )
 
-        self.response.headers['Content-Type'] = "application/json"
+        callback = self.request.get('callback')
+        content_type = 'application/json'
+        if callback:
+            result = callback + '(' + result + ');'
+            content_type = 'text/javascript'
+
+        self.response.headers['Content-Type'] = content_type
         self.response.out.write(result)
         return
 
@@ -114,6 +155,12 @@ class StatsHandler(Helper):
             ensure_ascii=False
             )
 
-        self.response.headers['Content-Type'] = "application/json"
+        callback = self.request.get('callback')
+        content_type = 'application/json'
+        if callback:
+            result = callback + '(' + result + ');'
+            content_type = 'text/javascript'
+
+        self.response.headers['Content-Type'] = content_type
         self.response.out.write(result)
         return
