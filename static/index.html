@@ -20,7 +20,7 @@
     <h2>About</h2>
     <p>WebMemcache is web frontend of google memcache. Anyone can use from anywhere.</p>
 
-    <h2>Usage</h2>
+    <h2>API</h2>
     <p>WebMemcache has not RESTful APIs.</p>
     <p>Click code to execute.</p>
 
@@ -78,6 +78,19 @@ jQuery.ajax({
  });
 </code></pre></div>
 <p>returns <var>({hits:3, items:2, bytes:19, oldest_item_age:648, misses:1, byte_hits:27})</var><p>
+
+<h2>JSONP API</h2>
+<div class="can-exec"><pre><code>
+jQuery.ajax({
+   url: '/get',
+   dataType: 'jsonp',
+   data: { 'key': ['foo', 'bar'], namespace: 'test' },
+   success: function(json){
+     log(json);
+   }
+ });
+</code></pre></div>
+<p>returns <var>jsonp1269444435395({"namespace": "test", "data": {"foo": "foooo", "bar": "barrrrrr"}});</var><p>
 
 <h2>Implementation</h2>
 <p><a href="http://github.com/hitode909/webmemcache">hitode909's webmemcache at master - GitHub</a></p>
