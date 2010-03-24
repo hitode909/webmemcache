@@ -1,6 +1,19 @@
 <html>
   <head>
     <title>WebMemcache</title>
+    <style type="text/css">
+      div.can-exec {
+        cursor: pointer;
+      }
+      textarea.code {
+        width: 50em;
+        height: 15em;
+        display: block;
+      }
+      div.log {
+        margin-left: 2em;
+      }
+    </style>
   </head>
   <body>
     <h1>WebMemcache</h1>
@@ -9,60 +22,61 @@
 
     <h2>Usage</h2>
     <p>WebMemcache has not RESTful APIs.</p>
+    <p>Click code to execute.</p>
 
 <h3>Set</h3>
-<pre><code>
+<div class="can-exec"><pre><code>
 jQuery.ajax({
    url: '/set',
    type: 'POST',
    dataType: 'json',
    data: {'foo': 'foooo', 'bar': 'barrrrrr', namespace: 'test', expire: 3600},
    success: function(json){
-     console.log(json);
+     log(json);
    }
  });
-</code></pre>
+</code></pre></div>
 <p>returns <var>({namespace:"test", data:{foo:"foooo", bar:"barrrrrr"}})</var></p>
 
 <h3>Get</h3>
-<pre><code>
+<div class="can-exec"><pre><code>
 jQuery.ajax({
    url: '/get',
    type: 'GET',
    dataType: 'json',
    data: {'key': ['foo','bar'], namespace: 'test'},
    success: function(json){
-     console.log(json);
+     log(json);
    }
  });
-</code></pre>
+</code></pre></div>
 <p>returns <var>({namespace:"test", data:{foo:"foooo", bar:"barrrrrr"}})</var></p>
 
 <h3>Delete</h3>
-<pre><code>
+<div class="can-exec"><pre><code>
 jQuery.ajax({
    url: '/delete',
    type: 'POST',
    dataType: 'json',
    data: {'key': ['foo', 'bar'], namespace: 'test'},
    success: function(json){
-     console.log(json);
+     log(json);
    }
  });
-</code></pre>
+</code></pre></div>
 <p>returns <var>({namespace:"test", data:{foo:null, bar:null}})</var></p>
 
 <h3>Stats</h3>
-<pre><code>
+<div class="can-exec"><pre><code>
 jQuery.ajax({
    url: '/stats',
    type: 'GET',
    dataType: 'json',
    success: function(json){
-     console.log(json);
+     log(json);
    }
  });
-</code></pre>
+</code></pre></div>
 <p>returns <var>({hits:3, items:2, bytes:19, oldest_item_age:648, misses:1, byte_hits:27})</var><p>
 
 <h2>Implementation</h2>
@@ -70,6 +84,7 @@ jQuery.ajax({
 <h2>Author</h2>
 <p><a href="http://twitter.com/hitode909">hitode909</a></p>
 
-
+    <script type="text/javascript" src="/js/jquery-1.4.2.js"></script>
+    <script type="text/javascript" src="/js/init.js"></script>
   </body>
 </html>

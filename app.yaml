@@ -14,5 +14,10 @@ handlers:
   upload: static/favicon.ico
   mime_type: image/x-icon
 
+- url: /js/(.*)
+  static_files: static/js/\1
+  upload: static/js/(.*)
+
+
 - url: .*
   script: main.py
