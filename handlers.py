@@ -29,14 +29,15 @@ class GetHandler(Helper):
         data = { }
         namespace = self.request.get('namespace')
         if not namespace: namespace = self.default_namespace()
-        logging.info("namespace: (%s)", namespace)
+        logging.info("namespace: %s", namespace)
         callback = self.request.get('callback')
 
         keys = self.request.get_all('key')
         keys.extend(self.request.get_all('key[]'))
         for key in keys:
-            logging.info("get key: (%s)", key)
+            logging.info("get key: %s", key)
             data[key] = memcache.get(key, namespace)
+            logging.info("value: %s", data[key])
 
         result = simplejson.dumps(
             { 'data': data, 'namespace': namespace},
@@ -69,7 +70,7 @@ class SetHandler(Helper):
 
         expire = self.request.get('expire')
         namespace = self.request.get('namespace')
-        logging.info("namespace: (%s)", namespace)
+        logging.info("namespace: %s", namespace)
         callback = self.request.get('callback')
 
         if not namespace: namespace = self.default_namespace()
@@ -88,11 +89,13 @@ class SetHandler(Helper):
         else:
             expire = 3600 * 24
 
-        logging.info("expire: (%s)", expire)
+        logging.info("expire: %s", expire)
 
         for key in data.keys():
-            logging.info("set key: (%s)", key)
+            logging.info("set key: %s", key)
             memcache.set(key, data[key], expire, 0, namespace)
+            logging.info("value: %s", data[key])
+
 
         result = simplejson.dumps(
             { 'data': data, 'namespace': namespace},
@@ -123,12 +126,12 @@ class DeleteHandler(Helper):
         data = { }
         namespace = self.request.get('namespace')
         if not namespace: namespace = self.default_namespace()
-        logging.info("namespace: (%s)", namespace)
+        logging.info("namespace: %s", namespace)
 
         keys = self.request.get_all('key')
         keys.extend(self.request.get_all('key[]'))
         for key in keys:
-            logging.info("delete key: (%s)", key)
+            logging.info("delete key: %s", key)
             memcache.delete(key, 0, namespace)
             data[key] = None
 
@@ -188,7 +191,7 @@ class IncrHandler(Helper):
         else:
             delta = 1
 
-        logging.info("namespace: (%s)", namespace)
+        logging.info("namespace: %s", namespace)
         logging.info("delta: %d", delta)
 
         keys = self.request.get_all('key')
