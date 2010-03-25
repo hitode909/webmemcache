@@ -77,14 +77,14 @@ class SetHandler(Helper):
         if expire:
             try:
                 expire = int(expire)
-                if expire <= 0:
+                if expire < 0:
                     self.error(400)
-                    self.response.out.write('expire must > 0')
+                    self.response.out.write('expire must >= 0')
                     return
                 
             except ValueError, message:
                 self.error(400)
-                self.response.out.write('expire must > 0')
+                self.response.out.write('expire must >= 0')
                 return
         else:
             expire = 3600 * 24
