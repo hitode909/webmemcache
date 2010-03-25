@@ -268,6 +268,7 @@ class RawHandler(Helper):
         key = self.request.get('key')
         logging.info("get key: %s", key)
         result = memcache.get(key, namespace)
+        logging.info("value: %s", key)
 
         content_type = self.request.get('content_type')
         if not content_type: content_type = self.default_content_type()
