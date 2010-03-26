@@ -6,6 +6,7 @@ def main():
     [
       (r'/stats',  StatsHandler),
       (r'/set',    SetHandler),
+      (r'/add',    AddHandler),
       (r'/get',    GetHandler),
       (r'/delete', DeleteHandler),
       (r'/incr',   IncrHandler),

@@ -23,7 +23,7 @@ class Helper(webapp.RequestHandler):
 
     def default_content_type(self):
         return 'text/plain'
-    
+
 class GetHandler(Helper):
     def get(self):
         data = { }
@@ -95,6 +95,76 @@ class SetHandler(Helper):
             logging.info("set key: %s", key)
             memcache.set(key, data[key], expire, 0, namespace)
             logging.info("value: %s", data[key])
+
+
+        result = simplejson.dumps(
+            { 'data': data, 'namespace': namespace},
+            ensure_ascii=False
+            )
+
+        content_type = 'application/json'
+        if callback:
+            result = callback + '(' + result + ');'
+            content_type = 'text/javascript'
+
+        self.response.headers['Content-Type'] = content_type
+        self.response.out.write(result)
+        return
+
+    def get(self):
+        keys = self.request.arguments()
+        if keys.count('callback') > 0:
+            self.post()
+            return
+        
+        self.error(400)
+        self.response.out.write('data is required(example: ?foo=bar')
+        return
+
+class AddHandler(Helper):
+    def post(self):
+        data = {}
+        keys = self.request.arguments()
+        if keys.count('expire') > 0: keys.remove('expire')
+        if keys.count('namespace') > 0: keys.remove('namespace')
+        if keys.count('callback') > 0: keys.remove('callback')
+        for key in keys:
+            data[key] = self.request.get(key)
+
+        if len(data) == 0:
+            self.error(400)
+            self.response.out.write('data is required(example: ?foo=bar')
+            return
+
+        expire = self.request.get('expire')
+        namespace = self.request.get('namespace')
+        logging.info("namespace: %s", namespace)
+        callback = self.request.get('callback')
+
+        if not namespace: namespace = self.default_namespace()
+        if expire:
+            try:
+                expire = int(expire)
+                if expire < 0:
+                    self.error(400)
+                    self.response.out.write('expire must >= 0')
+                    return
+                
+            except ValueError, message:
+                self.error(400)
+                self.response.out.write('expire must >= 0')
+                return
+        else:
+            expire = 3600 * 24
+
+        logging.info("expire: %s", expire)
+
+        for key in data.keys():
+            logging.info("add key: %s", key)
+            res = memcache.add(key, data[key], expire, 0, namespace)
+            logging.info("value: %s", data[key])
+            logging.info("result: %s", res)
+            data[key] = res
 
 
         result = simplejson.dumps(
