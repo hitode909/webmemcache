@@ -41,6 +41,21 @@ jQuery.ajax({
 </code></pre></div>
 <p>returns <var>({namespace:"test", data:{foo:"foooo", bar:"barrrrrr"}})</var></p>
 
+<h3>Add</h3>
+<div class="can-exec"><pre><code>
+jQuery.ajax({
+   url: '/add',
+   type: 'POST',
+   dataType: 'json',
+   data: {'foo': 'foooo', 'bar': 'barrrrrr', namespace: 'test', expire: 3600},
+   success: function(json){
+     log(json);
+   }
+ });
+</code></pre></div>
+<p>returns <var>({namespace:"test", data:{foo:false, bar:false}})</var></p>
+<p>true if added, false on error.</p>
+
 <h3>Get</h3>
 <div class="can-exec"><pre><code>
 jQuery.ajax({
