@@ -24,7 +24,32 @@ class Helper(webapp.RequestHandler):
     def default_content_type(self):
         return 'text/plain'
 
+    def write_data(self, data):
+        json = simplejson.dumps(data, ensure_ascii=False)
+        content_type = 'application/json'
+        callback = self.request.get('callback')
+        if callback:
+            content = callback + '(' + json + ');'
+            content_type = 'text/javascript'
+        else:
+            content = json
+
+        self.response.headers['Content-Type'] = content_type
+        self.response.out.write(content)
+        return
+
+
+    def write_standard_data(self, data):
+        namespace = self.request.get('namespace')
+        if not namespace: namespace = self.default_namespace()
+        self.write_data({ 'data': data, 'namespace': namespace})
+
     def set_or_add(self, method): # method = set or add
+        if self.request.arguments().count('set') or self.request.arguments().count('add'):
+            self.error(500)
+            self.response.out.write('Internal Server Error')
+            return
+
         data = {}
         keys = self.request.arguments()
         if keys.count('expire') > 0: keys.remove('expire')
@@ -38,15 +63,16 @@ class Helper(webapp.RequestHandler):
             self.response.out.write('data is required(example: ?foo=bar')
             return
 
-        expire = self.request.get('expire')
         namespace = self.request.get('namespace')
+        if not namespace: namespace = self.default_namespace()
         logging.info("namespace: %s", namespace)
         callback = self.request.get('callback')
 
-        if not namespace: namespace = self.default_namespace()
-        if expire:
+        expire = 0
+
+        if self.request.get('expire'):
             try:
-                expire = int(expire)
+                expire = int(self.request.get('expire'))
                 if expire < 0:
                     self.error(400)
                     self.response.out.write('expire must >= 0')
@@ -56,8 +82,6 @@ class Helper(webapp.RequestHandler):
                 self.error(400)
                 self.response.out.write('expire must >= 0')
                 return
-        else:
-            expire = 3600 * 24
 
         logging.info("expire: %s", expire)
 
@@ -69,20 +93,7 @@ class Helper(webapp.RequestHandler):
             logging.info("result: %s", res)
             if method == 'add': data[key] = res
 
-        result = simplejson.dumps(
-            { 'data': data, 'namespace': namespace},
-            ensure_ascii=False
-            )
-
-        content_type = 'application/json'
-        if callback:
-            result = callback + '(' + result + ');'
-            content_type = 'text/javascript'
-
-        self.response.headers['Content-Type'] = content_type
-        self.response.out.write(result)
-        return
-
+        self.write_standard_data(data)
     
 class GetHandler(Helper):
     def get(self):
@@ -99,19 +110,7 @@ class GetHandler(Helper):
             data[key] = memcache.get(key, namespace)
             logging.info("value: %s", data[key])
 
-        result = simplejson.dumps(
-            { 'data': data, 'namespace': namespace},
-            ensure_ascii=False
-            )
-
-        content_type = 'application/json'
-        if callback:
-            result = callback + '(' + result + ');'
-            content_type = 'text/javascript'
-
-        self.response.headers['Content-Type'] = content_type
-        self.response.out.write(result)
-        return
+        self.write_standard_data(data)
 
 class SetHandler(Helper):
     def post(self):
@@ -157,40 +156,13 @@ class DeleteHandler(Helper):
             memcache.delete(key, 0, namespace)
             data[key] = None
 
-        result = simplejson.dumps(
-            { 'data': data, 'namespace': namespace},
-            ensure_ascii=False
-            )
-
-        callback = self.request.get('callback')
-        content_type = 'application/json'
-        if callback:
-            result = callback + '(' + result + ');'
-            content_type = 'text/javascript'
-
-        self.response.headers['Content-Type'] = content_type
-        self.response.out.write(result)
-        return
+        self.write_standard_data(data)
 
 class StatsHandler(Helper):
     def get(self):
         logging.info("get stats")
         data = memcache.get_stats()
-
-        result = simplejson.dumps(
-            data,
-            ensure_ascii=False
-            )
-
-        callback = self.request.get('callback')
-        content_type = 'application/json'
-        if callback:
-            result = callback + '(' + result + ');'
-            content_type = 'text/javascript'
-
-        self.response.headers['Content-Type'] = content_type
-        self.response.out.write(result)
-        return
+        self.write_data(data)
 
 class IncrHandler(Helper):
     def post(self):
@@ -222,19 +194,7 @@ class IncrHandler(Helper):
             logging.info("incr key: %s", key)
             data[key] = memcache.incr(key, delta, namespace)
 
-        result = simplejson.dumps(
-            { 'data': data, 'namespace': namespace},
-            ensure_ascii=False
-            )
-
-        content_type = 'application/json'
-        if callback:
-            result = callback + '(' + result + ');'
-            content_type = 'text/javascript'
-
-        self.response.headers['Content-Type'] = content_type
-        self.response.out.write(result)
-        return
+        self.write_standard_data(data)
 
 class DecrHandler(Helper):
     def post(self):
@@ -266,19 +226,7 @@ class DecrHandler(Helper):
             logging.info("decr key: %s", key)
             data[key] = memcache.decr(key, delta, namespace)
 
-        result = simplejson.dumps(
-            { 'data': data, 'namespace': namespace},
-            ensure_ascii=False
-            )
-
-        content_type = 'application/json'
-        if callback:
-            result = callback + '(' + result + ');'
-            content_type = 'text/javascript'
-
-        self.response.headers['Content-Type'] = content_type
-        self.response.out.write(result)
-        return
+        self.write_standard_data(data)
 
 class RawHandler(Helper):
     def get(self):
