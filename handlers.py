@@ -38,7 +38,6 @@ class Helper(webapp.RequestHandler):
         self.response.out.write(content)
         return
 
-
     def write_standard_data(self, data):
         namespace = self.request.get('namespace')
         if not namespace: namespace = self.default_namespace()
@@ -130,7 +129,6 @@ class Helper(webapp.RequestHandler):
             data[key] = update_method(key, delta, namespace)
 
         self.write_standard_data(data)
-
     
 class GetHandler(Helper):
     def get(self):
