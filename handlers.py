@@ -94,6 +94,43 @@ class Helper(webapp.RequestHandler):
             if method == 'add': data[key] = res
 
         self.write_standard_data(data)
+
+    def incr_or_decr(self, method):
+        if self.request.arguments().count('incr') or self.request.arguments().count('decr'):
+            self.error(500)
+            self.response.out.write('Internal Server Error')
+            return
+        data = {}
+        namespace = self.request.get('namespace')
+        callback = self.request.get('callback')
+        delta = self.request.get('delta')
+
+        if delta:
+            try:
+                delta = int(delta)
+                if delta < 0:
+                    self.error(400)
+                    self.response.out.write('delta must > 0')
+                    return
+            except ValueError, message:
+                self.error(400)
+                self.response.out.write('delta must be int')
+                return
+        else:
+            delta = 1
+
+        logging.info("namespace: %s", namespace)
+        logging.info("delta: %d", delta)
+
+        keys = self.request.get_all('key')
+        keys.extend(self.request.get_all('key[]'))
+        update_method = getattr(memcache, method)
+        for key in keys:
+            logging.info("%s key: %s", method, key)
+            data[key] = update_method(key, delta, namespace)
+
+        self.write_standard_data(data)
+
     
 class GetHandler(Helper):
     def get(self):
@@ -166,67 +203,11 @@ class StatsHandler(Helper):
 
 class IncrHandler(Helper):
     def post(self):
-        data = {}
-        namespace = self.request.get('namespace')
-        callback = self.request.get('callback')
-        delta = self.request.get('delta')
-
-        if delta:
-            try:
-                delta = int(delta)
-                if delta < 0:
-                    self.error(400)
-                    self.response.out.write('delta must > 0')
-                    return
-            except ValueError, message:
-                self.error(400)
-                self.response.out.write('delta must be int')
-                return
-        else:
-            delta = 1
-
-        logging.info("namespace: %s", namespace)
-        logging.info("delta: %d", delta)
-
-        keys = self.request.get_all('key')
-        keys.extend(self.request.get_all('key[]'))
-        for key in keys:
-            logging.info("incr key: %s", key)
-            data[key] = memcache.incr(key, delta, namespace)
-
-        self.write_standard_data(data)
+        self.incr_or_decr('incr')
 
 class DecrHandler(Helper):
     def post(self):
-        data = {}
-        namespace = self.request.get('namespace')
-        callback = self.request.get('callback')
-        delta = self.request.get('delta')
-
-        if delta:
-            try:
-                delta = int(delta)
-                if delta < 0:
-                    self.error(400)
-                    self.response.out.write('delta must > 0')
-                    return
-            except ValueError, message:
-                self.error(400)
-                self.response.out.write('delta must be int')
-                return
-        else:
-            delta = 1
-
-        logging.info("namespace: (%s)", namespace)
-        logging.info("delta: %d", delta)
-
-        keys = self.request.get_all('key')
-        keys.extend(self.request.get_all('key[]'))
-        for key in keys:
-            logging.info("decr key: %s", key)
-            data[key] = memcache.decr(key, delta, namespace)
-
-        self.write_standard_data(data)
+        self.incr_or_decr('decr')
 
 class RawHandler(Helper):
     def get(self):
