@@ -154,29 +154,9 @@ class SetHandler(Helper):
         self.set_or_add('set')
         return
 
-    def get(self):
-        keys = self.request.arguments()
-        if keys.count('callback') > 0:
-            self.post()
-            return
-        
-        self.error(400)
-        self.response.out.write('data is required(example: ?foo=bar')
-        return
-
 class AddHandler(Helper):
     def post(self):
         self.set_or_add('add')
-        return
-
-    def get(self):
-        keys = self.request.arguments()
-        if keys.count('callback') > 0:
-            self.post()
-            return
-        
-        self.error(400)
-        self.response.out.write('data is required(example: ?foo=bar')
         return
 
 class DeleteHandler(Helper):
